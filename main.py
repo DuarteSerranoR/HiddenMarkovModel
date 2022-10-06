@@ -23,10 +23,10 @@ def init_data(obs_path,res_path):
     return obs, og_res
 
 
-def init_data(path):
+def init_data(train_path):
     
-    if not path:
-        raise Exception("Observations path not set!")
+    if not train_path:
+        raise Exception("Train path not set!")
 
     
 
