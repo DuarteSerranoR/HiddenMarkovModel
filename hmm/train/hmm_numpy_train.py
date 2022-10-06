@@ -89,7 +89,7 @@ class HMM_NumpyTrain:
         y -> the states of said input sequence / states
         """
         
-        if not train_df and ( not x_in or not y_in ):
+        if not isinstance(train_df, pd.DataFrame) and ( not isinstance(x_in, str) or not isinstance(y_in, str)):
             raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective")
 
         log.info("Pre-processing training data...")
