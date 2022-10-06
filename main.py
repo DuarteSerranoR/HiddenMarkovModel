@@ -4,6 +4,14 @@ from lib.logger import logger as log
 
 def init_data(obs_path,res_path):
     
+    if not obs_path:
+        raise Exception("Observations path not set!")
+    if not res_path:
+        raise Exception("Trainning results path not set!")
+
+    
+
+
     # TODO - load train data
     raise NotImplemented("Load train data - observations + original_result")
     #
