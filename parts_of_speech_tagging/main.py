@@ -5,28 +5,10 @@ import pandas as pd
 import numpy as np
 
 
-def init_data(obs_path,res_path):
-    
-    if not obs_path:
-        raise Exception("Observations path not set!")
-    if not res_path:
-        raise Exception("Trainning results path not set!")
-
-    
-
-
-    # TODO - load train data
-    raise NotImplemented("Load train data - observations + original_result")
-    #
-
-    log.info("Data loaded to memory.")
-    return obs, og_res
-
-
-def init_data(train_path): #obs_path,res_path):
+def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you want to use two files to train instead of just one
     
     if not train_path:
-        raise Exception("Train path not set!")
+        raise Exception("Train/Observation path not set!")
 
     # ---
     # used dataset -> https://www.cnts.ua.ac.be/conll2000/chunking/
@@ -44,6 +26,7 @@ def init_data(train_path): #obs_path,res_path):
 
     log.info("Data loaded to memory.")
     return data_df
+    #return obs, obj
 
 
 
@@ -52,18 +35,15 @@ def init_data(train_path): #obs_path,res_path):
 
 if __name__ == "__main__":
     log.info("Started HMM model testing")
-    #train_obs,train_og_res = init_data("","")
-    train_df = init_data("./parts_of_speech_tagging/data/train.txt")
+    train_data = init_data("") # TODO - input paths
     
     
     model = HMM()
-    train_out, train_accuracy = model.train_supervised_numpy(train_df, smoothing = 0.3, test = True)
-    #train_out, train_accuracy = model.train_supervised_numpy(train_obs, train_og_res, smoothing = 0.3, test = True)
-    
-    # TODO - load test data for f1
-    raise NotImplemented("Load test data - observations + wanted_result")
-    #
+    if isinstance(train_data, pd.DataFrame):
+        train_out, train_accuracy = model.train_numpy(train_data, smoothing = 0.3, test = True)
+    else:
+        train_obs, train_obj = train_data
+        train_out, train_accuracy = model.train_numpy(train_obs, train_obj, smoothing = 0.3, test = True)
 
-    output = model.compute(input)
-    # TODO - f1 not implemented yet, use wanted_result var
-    print(output)
+    #output = model.compute(input)
+    #print(output)
