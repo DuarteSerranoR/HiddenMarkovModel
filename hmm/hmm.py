@@ -2,6 +2,7 @@ import os
 from typing import List
 from xml.dom import InvalidAccessErr
 import numpy as np
+import pandas as pd
 
 from lib.logger import logger as log
 
@@ -45,6 +46,64 @@ class HMM:
                 # Train
                 log.debug("Training the model...")
                 x,y = HMM_NumpyTrain.pre_process(x_in, y_in)
+                train_set = HMM_NumpyTrain(x, y, smoothing)
+                train_set.compute_counts()
+                train_set.compute_probabilities()
+                model_data: HMM_ModelData = train_set.get_trained_model_data()
+                log.debug("Trained!")
+                
+                train_set = None
+                
+                model_data.to_disk(self.model_path)
+                
+                self.decoder = HMM_Decoder(model_data)
+                
+                self.trained = True
+            
+            
+            else:
+                x = self.__pre_process_data(x_in)
+                log.warning("TRAIN TEST WITH MODEL LOADED FROM DISK!!")
+
+
+            # Decode
+            #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
+            decoded_prediction = self.decoder.viterbi_decode(x)
+            
+            out_str = self.__compute_output(input, decoded_prediction)
+
+            # Compute accuracy
+            accurate_count = 0
+            accuracy_total = 0
+            
+            # TODO - compute accuracy
+            raise NotImplemented("Accuracy not Implemented!")
+            #
+            
+            accuracy = accurate_count / accuracy_total 
+            # TODO - measure f1 scores and use test files to check the accuracy for them too
+
+            log.info("model trained with accuracy of {0}%".format(accuracy*100))
+            return out_str, accuracy
+            
+        else:
+            raise Exception("ValidationException: Model already trained!")
+        
+    def train_supervised_numpy(self, df_in: pd.DataFrame, smoothing = 0, test = False) -> str:
+        """
+            df_in: Dataframe with observations and states
+        """
+        
+        if not self.trained or test:
+            if not self.trained:
+                if os.path.exists(self.model_path):
+                    raise FileExistsError("File found on referenced path to train and save the model.")
+
+                # Generate Initial/Transition/Estimated Probabilities
+                
+                # Train
+                log.debug("Training the model...")
+                x,y = HMM_NumpyTrain.pre_process(df_in)
                 train_set = HMM_NumpyTrain(x, y, smoothing)
                 train_set.compute_counts()
                 train_set.compute_probabilities()
