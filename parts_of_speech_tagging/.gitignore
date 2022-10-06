@@ -4,6 +4,5 @@
 .env
 .vscode
 __pycache__
-decoders/__pycache__
 model
 datasets
