@@ -1,5 +1,5 @@
 from hmm.hmm import HMM
-from logger import logger as log
+from lib.logger import logger as log
 
 
 def init_data(obs_path,res_path):

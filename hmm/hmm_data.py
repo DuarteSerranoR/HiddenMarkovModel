@@ -1,6 +1,6 @@
 import pickle
 
-from logger import logger as log
+from lib.logger import logger as log
 
 import numpy as np
 

@@ -3,7 +3,7 @@ from itertools import chain
 
 
 from hmm.hmm_data import HMM_ModelData
-from logger import logger as log
+from lib.logger import logger as log
 
 import numpy as np
 
