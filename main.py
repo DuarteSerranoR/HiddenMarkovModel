@@ -29,10 +29,10 @@ if __name__ == "__main__":
     
     model = HMM()
     if isinstance(train_data, pd.DataFrame):
-        train_out, train_accuracy = model.train_numpy(train_data, smoothing = 0.3, test = True)
+        train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
     else:
         train_obs, train_obj = train_data
-        train_out, train_accuracy = model.train_numpy(train_obs, train_obj, smoothing = 0.3, test = True)
+        train_out, train_accuracy = model.train_numpy(x_in=train_obs, y_in=train_obj, smoothing = 0.3, test = True)
 
     #output = model.compute(input)
     #print(output)
