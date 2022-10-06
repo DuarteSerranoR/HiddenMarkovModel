@@ -35,7 +35,7 @@ def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you
 
 if __name__ == "__main__":
     log.info("Started HMM model testing")
-    train_data = init_data("./parts_of_speech_tagging/data/train.txt") # TODO - input paths
+    train_data = init_data("./parts_of_speech_tagging/data/train.txt")
     
     
     model = HMM()

@@ -41,7 +41,7 @@ class HMM:
             y_in: the result we want to obtain when applied the states into the observation
         """
 
-        if not df_in and (not x_in or not y_in):
+        if not isinstance(df_in, pd.DataFrame) and (not x_in or not y_in):
             raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective")
 
         if self.trained and not test:
