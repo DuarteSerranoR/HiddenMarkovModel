@@ -35,15 +35,15 @@ def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you
 
 if __name__ == "__main__":
     log.info("Started HMM model testing")
-    train_data = init_data("") # TODO - input paths
+    train_data = init_data("./parts_of_speech_tagging/data/train.txt") # TODO - input paths
     
     
     model = HMM()
     if isinstance(train_data, pd.DataFrame):
-        train_out, train_accuracy = model.train_numpy(train_data, smoothing = 0.3, test = True)
+        train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
     else:
         train_obs, train_obj = train_data
-        train_out, train_accuracy = model.train_numpy(train_obs, train_obj, smoothing = 0.3, test = True)
+        train_out, train_accuracy = model.train_numpy(x_in=train_obs, y_in=train_obj, smoothing = 0.3, test = True)
 
     #output = model.compute(input)
     #print(output)
