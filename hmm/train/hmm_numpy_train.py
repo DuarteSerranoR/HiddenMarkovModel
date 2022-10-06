@@ -64,7 +64,7 @@ class HMM_NumpyTrain:
         self.smoothing = smoothing
     
     @staticmethod
-    def pre_process(train_df: pd.Dataframe = False, x_in = False, y_in = False):
+    def pre_process(train_df: pd.DataFrame = False, x_in = False, y_in = False):
     #def pre_process(x_in: str, y_in: str):
         """
         This is suposed to take in an observation input, and what we want to make out of it, 

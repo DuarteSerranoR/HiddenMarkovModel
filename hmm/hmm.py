@@ -33,7 +33,7 @@ class HMM:
     # TODO - implement different types of WER, WAcc, or f score tests out of the box !!
     def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, test_obs_str: str = "", test_obj_str: str = "", smoothing = 0, test = False) -> str:
         """
-            df_in: Dataframe with observations and states
+            df_in: DataFrame with observations and states
             
             or
 
