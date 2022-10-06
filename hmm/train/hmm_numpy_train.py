@@ -64,21 +64,37 @@ class HMM_NumpyTrain:
         self.smoothing = smoothing
     
     @staticmethod
-    def pre_process(x_in: str, y_in: str):
+    def pre_process(train_df: pd.DataFrame = False, x_in = False, y_in = False):
+    #def pre_process(x_in: str, y_in: str):
         """
         This is suposed to take in an observation input, and what we want to make out of it, 
         and return the states applied to said input and the out format of the input for each state.
 
+        --
+
+        Inputs
+
+        train_df -> dataframe that represents x_in and y_in
+
+        or
+
         x_in -> inputed value
         y_in -> the trainning data to where you want to convert the inputed value
+
+        --
+
+        Outputs
 
         x -> the input sequence / observations
         y -> the states of said input sequence / states
         """
         
+        if not train_df and ( not x_in or not y_in ):
+            raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective")
+
         log.info("Pre-processing training data...")
 
-        if len(x_in) != len(y_in): # number of lines
+        if x_in != False and y_in != False and len(x_in) != len(y_in): # number of lines
             raise OverflowError("Lengths of input training data are not equal!")
 
         # observation sequence
@@ -89,47 +105,9 @@ class HMM_NumpyTrain:
 
         # TODO - appply your trainning/state_processing logic
 
-        raise "Pre-Processing Not Implemented!"
+        raise NotImplemented("Pre-Processing Not Implemented!")
 
-        #
-
-        x = np.array(x, dtype="object")
-        y = np.array(y, dtype="object")
-
-        # Test the decoded prediction of said states, needs to be equal to y_in
-        train_test = HMM.__compute_output(x_in,y)
-        train_test = np.array(train_test.splitlines(), dtype=str)
-        
-        if (train_test != y_in).all():
-            raise Exception("Data from train doesn't match input!! Training bug or bad input.")
-
-        log.info("Training data ready to use!")
-        return x, y
-    
-    @staticmethod
-    def pre_process(df: pd.Dataframe):
-        """
-        This is suposed to take in an observation input, and what we want to make out of it, 
-        and return the states applied to said input and the out format of the input for each state.
-
-        x_in -> inputed value
-        y_in -> the trainning data to where you want to convert the inputed value
-
-        x -> the input sequence / observations
-        y -> the states of said input sequence / states
-        """
-        
-        log.info("Pre-processing training data...")
-
-        # observation sequence
-        x: List[List[int]] = []
-
-        # state sequence 
-        y: List[List[int]] = []
-
-        # TODO - appply your trainning/state_processing logic
-
-        raise "Pre-Processing Not Implemented!"
+        x_in = "" # NOTE - this is used to test if the generated train data is valid for your purpose
 
         #
 
