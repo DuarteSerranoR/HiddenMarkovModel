@@ -3,7 +3,7 @@ from typing import List
 from xml.dom import InvalidAccessErr
 import numpy as np
 
-from logger import logger as log
+from lib.logger import logger as log
 
 from hmm.hmm_data import HMM_ModelData
 from hmm.train.hmm_numpy_train import HMM_NumpyTrain
