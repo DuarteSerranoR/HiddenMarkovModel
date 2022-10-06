@@ -1,4 +1,4 @@
-from model.hmm.hmm import HMM
+from hmm.hmm import HMM
 from logger import logger as log
 
 

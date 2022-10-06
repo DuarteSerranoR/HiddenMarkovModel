@@ -1,5 +1,5 @@
 
-from model.hmm.hmm_data import HMM_ModelData
+from hmm.hmm_data import HMM_ModelData
 from decoders.viterbi_decoder import ViterbiDecoder
 
 

@@ -2,7 +2,7 @@ from typing import List
 from itertools import chain
 
 
-from model.hmm.hmm_data import HMM_ModelData
+from hmm.hmm_data import HMM_ModelData
 from logger import logger as log
 
 import numpy as np

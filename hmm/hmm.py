@@ -5,8 +5,8 @@ import numpy as np
 
 from logger import logger as log
 
-from model.hmm.hmm_data import HMM_ModelData
-from model.hmm.train.hmm_numpy_train import HMM_NumpyTrain
+from hmm.hmm_data import HMM_ModelData
+from hmm.train.hmm_numpy_train import HMM_NumpyTrain
 
 from decoders.decoder import HMM_Decoder
 
