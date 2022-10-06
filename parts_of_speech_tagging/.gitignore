@@ -1,8 +1,0 @@
-*.txt
-*.csv
-.cenv
-.env
-.vscode
-__pycache__
-model
-datasets
