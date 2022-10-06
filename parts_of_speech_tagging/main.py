@@ -6,6 +6,9 @@ import numpy as np
 
 def init_data(train_path): #obs_path,res_path):
     
+    if not train_path:
+        raise Exception("Observations path not set!")
+    
     #if not obs_path:
     #    raise Exception("Observations path not set!")
     #if not res_path:
