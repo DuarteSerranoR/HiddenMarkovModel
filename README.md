@@ -8,6 +8,8 @@ Some changes to the code need to be done to be used, mainly when it comes to the
 Run main.py to train and check what is still needed to program into the model for it to be usable.
 <br/>
 
+---
+
 ## Examples on how to use the Model:
 
  - [ Parts Of Speech Tagging ](https://github.com/DuarteSerranoR/HiddenMarkovModel/tree/parts_of_speech_tagging_dev)
