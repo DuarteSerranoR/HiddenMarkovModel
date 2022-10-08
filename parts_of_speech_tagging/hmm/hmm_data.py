@@ -1,13 +1,19 @@
+
 import pickle
+import numpy as np
 
 from lib.logger import logger as log
 
-import numpy as np
+from hmm.tokenizer import Tokenizer
+
 
 class HMM_ModelData:
     
     train_method: str
     loaded: bool = False
+
+    with_tokenizer = False
+    tokenizer: Tokenizer
     
     num_states: int
     
@@ -17,9 +23,14 @@ class HMM_ModelData:
     emission_probabilities: np.ndarray
     
     @classmethod
-    def from_memory(cls, train_method: str, initial_probabilities: np.ndarray, transition_probabilities: np.ndarray, final_probabilities: np.ndarray, emission_probabilities: np.ndarray):
+    def from_memory(cls, train_method: str, initial_probabilities: np.ndarray, transition_probabilities: np.ndarray, final_probabilities: np.ndarray, emission_probabilities: np.ndarray, tokenizer: Tokenizer = False):
+        
         model: HMM_ModelData = HMM_ModelData()
         
+        if tokenizer != False:
+            model.with_tokenizer = True
+            model.tokenizer = tokenizer
+
         model.train_method = train_method
         model.initial_probabilities = initial_probabilities
         model.transition_probabilities = transition_probabilities
@@ -54,4 +65,3 @@ class HMM_ModelData:
         pickle.dump(self, open(path, 'wb'))
         
         log.info("Model HMM saved to disk at '{0}'.".format(path))
-        

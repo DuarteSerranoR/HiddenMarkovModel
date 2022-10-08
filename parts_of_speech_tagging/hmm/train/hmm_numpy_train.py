@@ -1,12 +1,13 @@
+import numpy as np
+import pandas as pd
 from typing import List
 from itertools import chain
 
-
-from hmm.hmm_data import HMM_ModelData
 from lib.logger import logger as log
 
-import numpy as np
-import pandas as pd
+from hmm.tokenizer import Tokenizer
+from hmm.hmm_data import HMM_ModelData
+
 
 
 class HMM_NumpyTrain:
@@ -15,6 +16,8 @@ class HMM_NumpyTrain:
     
     x: np.ndarray
     y: np.ndarray
+
+    tokenizer: Tokenizer
     
     initial_counts: np.ndarray
     transition_counts: np.ndarray
@@ -31,7 +34,7 @@ class HMM_NumpyTrain:
     distinct_labels_len: int
     distinct_states_len: int
     
-    def __init__(self, x, y, smoothing=0):
+    def __init__(self, x, y, smoothing=0, tokenizer = False):
         self.x = x
         self.y = y
         _y = []
@@ -62,10 +65,11 @@ class HMM_NumpyTrain:
         self.emission_probabilities = np.zeros(dim, dtype=float)
         
         self.smoothing = smoothing
+
+        self.tokenizer = tokenizer
     
     @staticmethod
     def pre_process(train_df: pd.DataFrame = False, x_in = False, y_in = False):
-    #def pre_process(x_in: str, y_in: str):
         """
         This is suposed to take in an observation input, and what we want to make out of it, 
         and return the states applied to said input and the out format of the input for each state.
@@ -97,22 +101,58 @@ class HMM_NumpyTrain:
         if x_in != False and y_in != False and len(x_in) != len(y_in): # number of lines
             raise OverflowError("Lengths of input training data are not equal!")
 
+        #  - appply your trainning/state_processing logic
         # observation sequence
         x: List[List[int]] = []
+        #x = np.ndarray((0,0))
 
         # state sequence 
         y: List[List[int]] = []
+        #x = np.ndarray((0,0))
+        #
+        
+        words_unique = train_df[ train_df.words != "" ]["words"].unique()
+        words_dict = { words_unique[i] : i for i in range(len(words_unique)) }
 
-        # TODO - appply your trainning/state_processing logic
+        states_unique = train_df[ train_df.states != "" ]["states"].unique()
+        states_dict = { states_unique[i] : i for i in range(len(states_unique)) }
 
-        raise NotImplemented("Pre-Processing Not Implemented!")
+        x2 = []
+        y2 = []
+        words = train_df["words"]
+        states = train_df["states"]
+        prev_word_ix = 0
+        for word_ix in range(len(train_df)):
 
-        x_in = "" # NOTE - this is used to test if the generated train data is valid for your purpose
+            word = words[word_ix]
 
+            if not word:
+                x.append(x2)
+                y.append(y2)
+                x2 = []
+                y2 = []
+                prev_word_ix = word_ix
+                continue
+            
+            state = states[word_ix]
+            x2.append(words_dict[word])
+            y2.append(states_dict[state])
+        
+        
+        if prev_word_ix != word_ix:
+            x.append(x2)
+            y.append(y2)
+            x2 = []
+            y2 = []
         #
 
         x = np.array(x, dtype="object")
         y = np.array(y, dtype="object")
+
+        # NOTE - this is used to test if the generated train data is valid for your purpose
+        """
+        x_in = ""
+
 
         # Test the decoded prediction of said states, needs to be equal to y_in
         train_test = HMM.__compute_output(x_in,y)
@@ -120,9 +160,14 @@ class HMM_NumpyTrain:
         
         if (train_test != y_in).all():
             raise Exception("Data from train doesn't match input!! Training bug or bad input.")
+        """
+
+        tokenizer = True
+        if tokenizer:
+            tokenizer = Tokenizer(words_dict,states_dict)
 
         log.info("Training data ready to use!")
-        return x, y
+        return x, y, tokenizer
 
     def compute_counts(self):
         x = self.x
@@ -188,6 +233,10 @@ class HMM_NumpyTrain:
         log.info("Computed Probabilities")
     
     def get_trained_model_data(self) -> HMM_ModelData:
-        model_data = HMM_ModelData.from_memory("Numpy", self.initial_probabilities, self.transition_probabilities, self.final_probabilities, self.emission_probabilities)
+        if self.tokenizer != False:
+            model_data = HMM_ModelData.from_memory("Numpy", self.initial_probabilities, self.transition_probabilities, self.final_probabilities, self.emission_probabilities, self.tokenizer)
+        else:
+            model_data = HMM_ModelData.from_memory("Numpy", self.initial_probabilities, self.transition_probabilities, self.final_probabilities, self.emission_probabilities)
+
         return model_data
 

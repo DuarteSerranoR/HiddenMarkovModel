@@ -19,7 +19,7 @@ def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you
     data_raw = [ [line.split(" ")[0],line.split(" ")[2]] if line != "" else ("","") for line in data_lines ]
     data_np = np.array(data_raw,dtype=np.object0)
     data_words,data_state = data_np[:,0],data_np[:,1]
-    data_df = pd.DataFrame({ "words": data_words, "state": data_state })
+    data_df = pd.DataFrame({ "words": data_words, "states": data_state })
     #data_df.to_csv("./temp.csv")
 
     # ---
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     log.info("Started HMM model testing")
     train_data = init_data("./parts_of_speech_tagging/data/train.txt")
     
-    
-    model = HMM()
+    model = HMM(model_path="./parts_of_speech_tagging/model/hmm.dat")
+    #model.compute("Hello! How are you doing?")
     if isinstance(train_data, pd.DataFrame):
         train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
     else:
