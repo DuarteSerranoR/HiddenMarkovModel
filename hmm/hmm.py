@@ -30,7 +30,7 @@ class HMM:
     # Train methods
 
     # TODO - implement different types of WER, WAcc, or f score tests out of the box !!
-    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, test_obs_str: str = "", test_obj_str: str = "", smoothing = 0, test = False):
+    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, x_test = False, y_test = False, test_df: pd.DataFrame = False, smoothing = 0, test = False):
         """
             df_in: DataFrame with observations and states
             
@@ -63,6 +63,7 @@ class HMM:
             train_set.compute_counts()
             train_set.compute_probabilities()
             model_data: HMM_ModelData = train_set.get_trained_model_data()
+                
             log.debug("Trained!")
             
             train_set = None
@@ -79,31 +80,10 @@ class HMM:
         
         if test:
 
-            if not test_obs_str:
-                raise ValueError("Test Observation string cannot be empty when you have the test bool active!")
-
-            if not test_obj_str:
-                raise ValueError("Test Objective string cannot be empty when you have the test bool active!")
-
-            x = self.__pre_process_observation(test_obs_str)
-
-            # Decode
-            #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
-            decoded_prediction = self.decoder.viterbi_decode(x)
-            
-            out_str = self.__compute_output(input, decoded_prediction)
-
-            # Compute accuracy
-            accurate_count = 0
-            accuracy_total = 0
-            
-            # TODO - compute accuracy tests
-            raise NotImplemented("Accuracy tests not Implemented!")
-            
-            accuracy = accurate_count / accuracy_total 
-
-            log.info("model trained with {} of {0}%".format("TODO",accuracy*100))
-            return out_str, accuracy
+            if not isinstance(df_in, pd.DataFrame) and (not isinstance(x_in, str) or not isinstance(y_in, str)):
+                raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective for evaluation, if the Test bool is active.")
+                
+            return self.eval(x_test, y_test, test_df)
             
             
         #else:
@@ -135,15 +115,24 @@ class HMM:
         
     def compute(self, input):
         if self.trained:
-            input_coded = self.__compute_pre_process(input)
+            input_coded = self.__pre_process_observation(input)
             decoded_prediction = self.decoder.viterbi_decode(input_coded)
-            out = HMM.__compute_output(input, decoded_prediction)
+            if self.decoder.model_data.with_tokenizer:
+                out = HMM.__compute_output(input, decoded_prediction, self.decoder.model_data.tokenizer)
+            else:
+                out = HMM.__compute_output(input, decoded_prediction)
             return out
         else:
             raise InvalidFileException("Model not trained or loaded for use!!")
 
     # TODO - self_supervised -> suggestion
-    
+
+    def eval(self, x_test = False, y_test = False, test_df: pd.DataFrame = False):
+        
+        # TODO - evaluate, print or return the desired outcome
+
+        raise NotImplemented("Model evaluation not Implemented!")
+        
     
     #def process_batch(self, input: List[str]):
     #    input = self.viterbi_decoder.__pre_process_batch(input)
@@ -161,14 +150,20 @@ class HMM:
 
     def __pre_process_observation(self, input: str) -> np.ndarray:
         
+        sequence = [[]] # computed in batches / lines
+
+        # TODO - compute pre-processing of input string into matrix
         raise NotImplemented("You need to preprocess input into suitable format.")
+
+        if self.decoder.model_data.with_tokenizer:
+            raise NotImplemented()
 
         sequence = np.array(sequence, dtype="object")
 
         return sequence
 
     @classmethod
-    def __compute_output(self, input: list(), decoded_prediction: np.ndarray) -> str:
+    def __compute_output(self, input: list(), decoded_prediction: np.ndarray, tokenizer = False) -> str:
         """
         input -> is the input
         decoded_prediction -> is the decoded states to apply into the input
@@ -178,7 +173,10 @@ class HMM:
         output -> is the output of the state applied into the input
         """
         
-        # TODO - compute the state aplications into the input
-        raise "Not Implemented!"
+        # TODO - compute and return the predicted states
+        raise NotImplemented("Not Implemented!")
+
+        if tokenizer != False:
+            raise NotImplemented("Use tokenizer to resolve tokens from the prediction.")
         
         return output
