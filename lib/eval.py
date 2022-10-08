@@ -1,31 +1,19 @@
-from collections import defaultdict
-from argparse import ArgumentParser
 
-def main():
-    
-    parser = ArgumentParser(description="")
-    parser.add_argument("in_file", default="input.txt", help="reference file for evaluation")
-    parser.add_argument("out_file", default="prediction.txt", help="prediction output file")
-    
-    args = parser.parse_args()
+def WER(txt1: str, txt2: str):
+    return levenshtein_distance(txt1.split(" "),txt2.split(" "))
 
-    input = []
-    output = []
+#def FScores():
 
-    with open(args.in_file, encoding="utf-8") as f:
-        for line in f:
-            # TODO
-            raise
+def levenshtein_distance(x, y):
+    n = len(x)
+    m = len(y)
 
-                    
-    with open(args.out_file, encoding="utf-8") as f:
-        for line in f:
-            # TODO
-            raise
+    A = [[i + j for j in range(m + 1)] for i in range(n + 1)]
 
-    # TODO - compute eval
-    raise
-        
-if __name__ == "__main__":
-    main()
+    for i in range(n):
+        for j in range(m):
+            A[i + 1][j + 1] = min(A[i][j + 1] + 1,              # insert
+                                  A[i + 1][j] + 1,              # delete
+                                  A[i][j] + int(x[i] != y[j]))  # replace
 
+    return A[n][m]

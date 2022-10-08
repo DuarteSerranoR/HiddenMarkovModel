@@ -128,10 +128,9 @@ class HMM:
     # TODO - self_supervised -> suggestion
 
     def eval(self, x_test = False, y_test = False, test_df: pd.DataFrame = False):
-        
-        # TODO - evaluate, print or return the desired outcome
 
         raise NotImplemented("Model evaluation not Implemented!")
+        # TODO - evaluate, print or return the desired outcome. Note that you have an eval lib with some tools !
         
     
     #def process_batch(self, input: List[str]):
