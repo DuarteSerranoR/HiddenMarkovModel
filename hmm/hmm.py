@@ -129,7 +129,7 @@ class HMM:
 
     def eval(self, x_test = False, y_test = False, test_df: pd.DataFrame = False):
         
-        # TODO - evaluate, print or return the desired outcome
+        # TODO - evaluate, print or return the desired outcome. Note that you have an eval lib with some tools !
 
         raise NotImplemented("Model evaluation not Implemented!")
         
