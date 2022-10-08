@@ -1,8 +1,7 @@
 import os
-from typing import List
-from xml.dom import InvalidAccessErr
 import numpy as np
 import pandas as pd
+from plistlib import InvalidFileException
 
 from lib.logger import logger as log
 
@@ -31,7 +30,7 @@ class HMM:
     # Train methods
 
     # TODO - implement different types of WER, WAcc, or f score tests out of the box !!
-    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, test_obs_str: str = "", test_obj_str: str = "", smoothing = 0, test = False) -> str:
+    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, test_obs_str: str = "", test_obj_str: str = "", smoothing = 0, test = False):
         """
             df_in: DataFrame with observations and states
             
@@ -41,71 +40,70 @@ class HMM:
             y_in: the result we want to obtain when applied the states into the observation
         """
 
-        if not isinstance(df_in, pd.DataFrame) and (not isinstance(df_in, str) or not isinstance(df_in, str)):
+        if not isinstance(df_in, pd.DataFrame) and (not isinstance(x_in, str) or not isinstance(y_in, str)):
             raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective")
 
         if self.trained and not test:
             raise ValueError("Test already trained and test bool set to false, so there is nothing to do!")
         
         if not self.trained:
-            if not self.trained:
-                if os.path.exists(self.model_path):
-                    raise FileExistsError("File found on referenced path to train and save the model.")
+            if os.path.exists(self.model_path):
+                raise FileExistsError("File found on referenced path to train and save the model.")
 
-                # Generate Initial/Transition/Estimated Probabilities
-                
-                # Train
-                log.debug("Training the model...")
-                if isinstance(df_in, pd.DataFrame):
-                    x,y = HMM_NumpyTrain.pre_process(df_in)
-                else:
-                    x,y = HMM_NumpyTrain.pre_process(x_in, y_in)
-
-                train_set = HMM_NumpyTrain(x, y, smoothing)
-                train_set.compute_counts()
-                train_set.compute_probabilities()
-                model_data: HMM_ModelData = train_set.get_trained_model_data()
-                log.debug("Trained!")
-                
-                train_set = None
-                
-                model_data.to_disk(self.model_path)
-                
-                self.decoder = HMM_Decoder(model_data)
-                
-                self.trained = True
+            # Generate Initial/Transition/Estimated Probabilities
             
-            
+            # Train
+            log.debug("Training the model...")
+            if isinstance(df_in, pd.DataFrame):
+                x,y,tokenizer = HMM_NumpyTrain.pre_process(df_in)
             else:
-                log.warning("TRAIN TEST WITH MODEL LOADED FROM DISK!!")
+                x,y,tokenizer = HMM_NumpyTrain.pre_process(x_in, y_in)
+
+            train_set = HMM_NumpyTrain(x, y, smoothing, tokenizer)
+            train_set.compute_counts()
+            train_set.compute_probabilities()
+            model_data: HMM_ModelData = train_set.get_trained_model_data()
+            log.debug("Trained!")
             
-            if test:
+            train_set = None
+            
+            model_data.to_disk(self.model_path)
+            
+            self.decoder = HMM_Decoder(model_data)
+            
+            self.trained = True
+            
+            
+        else:
+            log.warning("TRAIN TEST WITH MODEL LOADED FROM DISK!!")
+        
+        if test:
 
-                if not test_obs_str:
-                    raise ValueError("Test Observation string cannot be empty when you have the test bool active!")
+            if not test_obs_str:
+                raise ValueError("Test Observation string cannot be empty when you have the test bool active!")
 
-                if not test_obj_str:
-                    raise ValueError("Test Objective string cannot be empty when you have the test bool active!")
+            if not test_obj_str:
+                raise ValueError("Test Objective string cannot be empty when you have the test bool active!")
 
-                x = self.__pre_process_observation(test_obs_str)
+            x = self.__pre_process_observation(test_obs_str)
 
-                # Decode
-                #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
-                decoded_prediction = self.decoder.viterbi_decode(x)
-                
-                out_str = self.__compute_output(input, decoded_prediction)
+            # Decode
+            #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
+            decoded_prediction = self.decoder.viterbi_decode(x)
+            
+            out_str = self.__compute_output(input, decoded_prediction)
 
-                # Compute accuracy
-                accurate_count = 0
-                accuracy_total = 0
-                
-                # TODO - compute accuracy tests
-                raise NotImplemented("Accuracy tests not Implemented!")
-                
-                accuracy = accurate_count / accuracy_total 
+            # Compute accuracy
+            accurate_count = 0
+            accuracy_total = 0
+            
+            # TODO - compute accuracy tests
+            raise NotImplemented("Accuracy tests not Implemented!")
+            
+            accuracy = accurate_count / accuracy_total 
 
-                log.info("model trained with {} of {0}%".format("TODO",accuracy*100))
-                return out_str, accuracy
+            log.info("model trained with {} of {0}%".format("TODO",accuracy*100))
+            return out_str, accuracy
             
             
         #else:
@@ -142,7 +140,7 @@ class HMM:
             out = HMM.__compute_output(input, decoded_prediction)
             return out
         else:
-            raise InvalidAccessErr("Model not trained or loaded for use!!")
+            raise InvalidFileException("Model not trained or loaded for use!!")
 
     # TODO - self_supervised -> suggestion
     
@@ -184,4 +182,3 @@ class HMM:
         raise "Not Implemented!"
         
         return output
-
