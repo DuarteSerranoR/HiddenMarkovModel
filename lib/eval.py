@@ -2,8 +2,8 @@
 def WER(txt1: str, txt2: str):
     len1 = len(txt1.split())
     len2 = len(txt2.split())
-    if len1 != len2:
-        raise Exception("Both input strings need to have the same number of words to get its word error rate!")
+    #if len1 != len2:
+    #    raise Exception("Both input strings need to have the same number of words to get its word error rate!")
     return ( levenshtein_distance(txt1.split(" "),txt2.split(" ")) / len1 ) * 100
 
 #def FScores():
