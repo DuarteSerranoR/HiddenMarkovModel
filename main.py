@@ -26,7 +26,6 @@ if __name__ == "__main__":
     log.info("Started HMM model testing")
     train_data = init_data("") # TODO - input paths
     
-    
     model = HMM()
     if isinstance(train_data, pd.DataFrame):
         train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
