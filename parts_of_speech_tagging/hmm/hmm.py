@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from plistlib import InvalidFileException
 
+from lib.eval import WER
 from lib.logger import logger as log
 
 from hmm.hmm_data import HMM_ModelData
@@ -31,7 +32,7 @@ class HMM:
     # Train methods
 
     # TODO - implement different types of WER, WAcc, or f score tests out of the box !!
-    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, test_obs_str: str = "", test_obj_str: str = "", smoothing = 0, test = False):
+    def train_numpy(self, x_in = False, y_in = False, df_in: pd.DataFrame = False, x_test = False, y_test = False, test_df: pd.DataFrame = False, smoothing = 0, test = False):
         """
             df_in: DataFrame with observations and states
             
@@ -81,34 +82,10 @@ class HMM:
         
         if test:
 
-            if not test_obs_str:
-                raise ValueError("Test Observation string cannot be empty when you have the test bool active!")
-
-            if not test_obj_str:
-                raise ValueError("Test Objective string cannot be empty when you have the test bool active!")
-
-            x = self.__pre_process_observation(test_obs_str)
-
-            # Decode
-            #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
-            decoded_prediction = self.decoder.viterbi_decode(x)
-
-            if self.decoder.model_data.with_tokenizer:
-                out_str = HMM.__compute_output(input, decoded_prediction, self.decoder.model_data.tokenizer)
-            else:
-                out_str = HMM.__compute_output(input, decoded_prediction)
-
-            # Compute accuracy
-            accurate_count = 0
-            accuracy_total = 0
-            
-            # TODO - compute accuracy tests
-            raise NotImplemented("Accuracy tests not Implemented!")
-            
-            accuracy = accurate_count / accuracy_total 
-
-            log.info("model trained with {} of {0}%".format("TODO",accuracy*100))
-            return out_str, accuracy
+            if not isinstance(df_in, pd.DataFrame) and (not isinstance(x_in, str) or not isinstance(y_in, str)):
+                raise ValueError("Invalid Arguments, you need to supply either train dataframe or input observation and input objective for evaluation, if the Test bool is active.")
+                
+            return self.eval(x_test, y_test, test_df)
             
             
         #else:
@@ -151,7 +128,24 @@ class HMM:
             raise InvalidFileException("Model not trained or loaded for use!!")
 
     # TODO - self_supervised -> suggestion
-    
+
+    def eval(self, x_test = False, y_test = False, test_df: pd.DataFrame = False):
+        
+        #raise NotImplemented("Model evaluation not Implemented!")
+        #  - evaluate, print or return the desired outcome
+        #
+
+        input = " ".join(test_df["words"])
+        states_original = " ".join([ state for state in test_df["states"] if state != "" ])
+        output = self.compute(input)
+        states_predicted = " ".join([ " ".join([ token["state_token"] for token in line ]) for line in output ])
+
+        wer_score = WER(states_original,states_predicted)
+
+        log.info("WER Score = {} %", wer_score)
+
+        #
+        
     
     #def process_batch(self, input: List[str]):
     #    input = self.viterbi_decoder.__pre_process_batch(input)
@@ -174,7 +168,7 @@ class HMM:
         #raise NotImplemented("You need to preprocess input into suitable format.")
         #
         rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()\'])')
-        input = input.split("\n")
+        input = input.lower().split("\n")
         _sequence = []
         for line in input:
             line_sequence = rx.sub(" \\1 ", line)
@@ -202,6 +196,8 @@ class HMM:
                     line_sequence = [ obs_tokens[w] for w in line ]
                 else:
                     line_sequence = [ obs_tokens[w] if w in obs_tokens else words_dict[w] for w in line ]
+                    #unknown_tokens = [ w for w in line if not w in obs_tokens ]
+                    #log.warning("Unkown Tokens '" + str(unknown_tokens) + "' found! Predictions won't be as accurate.")
                     log.warning("Unkown Tokens found! Predictions won't be as accurate.")
                 sequence.append(line_sequence)
 
@@ -212,7 +208,7 @@ class HMM:
         return sequence
 
     @classmethod
-    def __compute_output(self, input: list(), decoded_prediction: np.ndarray, tokenizer = False):
+    def __compute_output(self, input, decoded_prediction: np.ndarray, tokenizer = False):
         """
         input -> is the input
         decoded_prediction -> is the decoded states to apply into the input

@@ -112,7 +112,7 @@ class HMM_NumpyTrain:
         #
         
         words_unique = train_df[ train_df.words != "" ]["words"].unique()
-        words_dict = { words_unique[i] : i for i in range(len(words_unique)) }
+        words_dict = { words_unique[i].lower() : i for i in range(len(words_unique)) }
 
         states_unique = train_df[ train_df.states != "" ]["states"].unique()
         states_dict = { states_unique[i] : i for i in range(len(states_unique)) }
@@ -124,7 +124,7 @@ class HMM_NumpyTrain:
         prev_word_ix = 0
         for word_ix in range(len(train_df)):
 
-            word = words[word_ix]
+            word = words[word_ix].lower()
 
             if not word:
                 x.append(x2)
