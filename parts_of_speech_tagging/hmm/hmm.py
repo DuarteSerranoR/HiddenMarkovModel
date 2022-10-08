@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import pandas as pd
 from plistlib import InvalidFileException
@@ -63,6 +64,7 @@ class HMM:
             train_set.compute_counts()
             train_set.compute_probabilities()
             model_data: HMM_ModelData = train_set.get_trained_model_data()
+                
             log.debug("Trained!")
             
             train_set = None
@@ -90,8 +92,11 @@ class HMM:
             # Decode
             #decoded_prediction, total_score = self.decoder.viterbi_decode(x)
             decoded_prediction = self.decoder.viterbi_decode(x)
-            
-            out_str = self.__compute_output(input, decoded_prediction)
+
+            if self.decoder.model_data.with_tokenizer:
+                out_str = HMM.__compute_output(input, decoded_prediction, self.decoder.model_data.tokenizer)
+            else:
+                out_str = HMM.__compute_output(input, decoded_prediction)
 
             # Compute accuracy
             accurate_count = 0
@@ -135,9 +140,12 @@ class HMM:
         
     def compute(self, input):
         if self.trained:
-            input_coded = self.__compute_pre_process(input)
+            input_coded = self.__pre_process_observation(input)
             decoded_prediction = self.decoder.viterbi_decode(input_coded)
-            out = HMM.__compute_output(input, decoded_prediction)
+            if self.decoder.model_data.with_tokenizer:
+                out = HMM.__compute_output(input, decoded_prediction, self.decoder.model_data.tokenizer)
+            else:
+                out = HMM.__compute_output(input, decoded_prediction)
             return out
         else:
             raise InvalidFileException("Model not trained or loaded for use!!")
@@ -160,15 +168,51 @@ class HMM:
     # Private methods
 
     def __pre_process_observation(self, input: str) -> np.ndarray:
+
+        #sequence = [[]] # computed in batches / lines
         
-        raise NotImplemented("You need to preprocess input into suitable format.")
+        #raise NotImplemented("You need to preprocess input into suitable format.")
+        #
+        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()\'])')
+        input = input.split("\n")
+        _sequence = []
+        for line in input:
+            line_sequence = rx.sub(" \\1 ", line)
+            line_sequence = line_sequence.split(" ")
+            line_sequence = [ w for w in line_sequence if w != "" ]
+            _sequence.append(line_sequence)
+        #
+
+        if self.decoder.model_data.with_tokenizer:
+            #raise NotImplemented()
+            #
+
+            obs_tokens = self.decoder.model_data.tokenizer.obs
+            total_words = []
+            for line in _sequence:
+                total_words.extend(line)
+            words_unique = list(set(total_words))
+
+            if not all(w in obs_tokens for w in total_words ):
+                words_dict = { words_unique[i] : i for i in range(len(words_unique)) }
+
+            sequence = []
+            for line in _sequence:
+                if all(w in obs_tokens for w in line):
+                    line_sequence = [ obs_tokens[w] for w in line ]
+                else:
+                    line_sequence = [ obs_tokens[w] if w in obs_tokens else words_dict[w] for w in line ]
+                    log.warning("Unkown Tokens found! Predictions won't be as accurate.")
+                sequence.append(line_sequence)
+
+            #
 
         sequence = np.array(sequence, dtype="object")
 
         return sequence
 
     @classmethod
-    def __compute_output(self, input: list(), decoded_prediction: np.ndarray) -> str:
+    def __compute_output(self, input: list(), decoded_prediction: np.ndarray, tokenizer = False):
         """
         input -> is the input
         decoded_prediction -> is the decoded states to apply into the input
@@ -178,7 +222,42 @@ class HMM:
         output -> is the output of the state applied into the input
         """
         
-        # TODO - compute the state aplications into the input
-        raise "Not Implemented!"
+        #  - compute and return the predicted states
+        #raise NotImplemented("Not Implemented!")
+
+        #if tokenizer != False:
+        #    raise NotImplemented("Use tokenizer to resolve tokens from the prediction.")
+
+        #
+
+        state_tokens = dict([(value, key) for key, value in tokenizer.states.items()])
+        tokenized_predictions = []
+        for line in decoded_prediction:
+        #    output_line = " ".join([ state_tokens[prediction] for prediction in line ])
+            output_line = [ state_tokens[prediction] for prediction in line ]
+            tokenized_predictions.append(output_line)
+        #"\n".join(tokenized_predictions)
         
+        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()\'])')
+        input = input.split("\n")
+        _sequence = []
+        for line in input:
+            line_sequence = rx.sub(" \\1 ", line)
+            line_sequence = line_sequence.split(" ")
+            line_sequence = [ w for w in line_sequence if w != "" ]
+            _sequence.append(line_sequence)
+
+        output = []
+        for i in range(len(input)):
+            _output = [ { 
+                    "obs_token": _sequence[i][j],
+                    "state_token": tokenized_predictions[i][j]
+                }
+                for j in range(len(_sequence[i]))
+            ]
+            output.append(_output)
+
+        #
+
+
         return output

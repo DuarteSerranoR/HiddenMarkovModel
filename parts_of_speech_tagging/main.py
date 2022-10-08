@@ -38,12 +38,14 @@ if __name__ == "__main__":
     train_data = init_data("./parts_of_speech_tagging/data/train.txt")
     
     model = HMM(model_path="./parts_of_speech_tagging/model/hmm.dat")
-    #model.compute("Hello! How are you doing?")
-    if isinstance(train_data, pd.DataFrame):
-        train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
-    else:
-        train_obs, train_obj = train_data
-        train_out, train_accuracy = model.train_numpy(x_in=train_obs, y_in=train_obj, smoothing = 0.3, test = True)
+    res=model.compute("Hello! How are you doing?")
+    #if isinstance(train_data, pd.DataFrame):
+    #    train_out, train_accuracy = model.train_numpy(df_in=train_data, smoothing = 0.3, test = True)
+    #else:
+    #    train_obs, train_obj = train_data
+    #    train_out, train_accuracy = model.train_numpy(x_in=train_obs, y_in=train_obj, smoothing = 0.3, test = True)
 
     #output = model.compute(input)
     #print(output)
+    print(res)
+ 
