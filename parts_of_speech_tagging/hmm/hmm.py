@@ -136,13 +136,15 @@ class HMM:
         #
 
         input = " ".join(test_df["words"])
-        states_original = " ".join([ state for state in test_df["states"] if state != "" ])
         output = self.compute(input)
+
+        states_original = " ".join([ state for state in test_df["states"] if state != "" ])
         states_predicted = " ".join([ " ".join([ token["state_token"] for token in line ]) for line in output ])
 
         wer_score = WER(states_original,states_predicted)
 
-        log.info("WER Score = {} %", wer_score)
+        log.info("WER Score = {} %".format(wer_score))
+        log.info("WAcc Score = {} %".format(100-wer_score))
 
         #
         
@@ -167,7 +169,7 @@ class HMM:
         
         #raise NotImplemented("You need to preprocess input into suitable format.")
         #
-        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()\'])')
+        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
         input = input.lower().split("\n")
         _sequence = []
         for line in input:
@@ -196,9 +198,9 @@ class HMM:
                     line_sequence = [ obs_tokens[w] for w in line ]
                 else:
                     line_sequence = [ obs_tokens[w] if w in obs_tokens else words_dict[w] for w in line ]
-                    #unknown_tokens = [ w for w in line if not w in obs_tokens ]
-                    #log.warning("Unkown Tokens '" + str(unknown_tokens) + "' found! Predictions won't be as accurate.")
-                    log.warning("Unkown Tokens found! Predictions won't be as accurate.")
+                    unknown_tokens = [ w for w in line if not w in obs_tokens ]
+                    log.warning("Unkown Tokens '" + str(unknown_tokens) + "' found! Predictions won't be as accurate.")
+                    #log.warning("Unkown Tokens found! Predictions won't be as accurate.")
                 sequence.append(line_sequence)
 
             #
@@ -234,7 +236,7 @@ class HMM:
             tokenized_predictions.append(output_line)
         #"\n".join(tokenized_predictions)
         
-        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()\'])')
+        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
         input = input.split("\n")
         _sequence = []
         for line in input:
