@@ -1,7 +1,8 @@
 import os
-import re
+#import re
 import numpy as np
 import pandas as pd
+from nltk import word_tokenize
 from plistlib import InvalidFileException
 
 from lib.eval import WER
@@ -169,13 +170,14 @@ class HMM:
         
         #raise NotImplemented("You need to preprocess input into suitable format.")
         #
-        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
+        #rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
         input = input.lower().split("\n")
         _sequence = []
         for line in input:
-            line_sequence = rx.sub(" \\1 ", line)
-            line_sequence = line_sequence.split(" ")
-            line_sequence = [ w for w in line_sequence if w != "" ]
+            #line_sequence = rx.sub(" \\1 ", line)
+            #line_sequence = line_sequence.split(" ")
+            #line_sequence = [ w for w in line_sequence if w != "" ]
+            line_sequence = word_tokenize(line)
             _sequence.append(line_sequence)
         #
 
@@ -236,13 +238,14 @@ class HMM:
             tokenized_predictions.append(output_line)
         #"\n".join(tokenized_predictions)
         
-        rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
+        #rx = re.compile(r'([.()!()?()"()\-()_():(),();()+()*()\[()\]()=()%()€(){()}()«()»()$()`()\\()/()\'])')
         input = input.split("\n")
         _sequence = []
         for line in input:
-            line_sequence = rx.sub(" \\1 ", line)
-            line_sequence = line_sequence.split(" ")
-            line_sequence = [ w for w in line_sequence if w != "" ]
+            #line_sequence = rx.sub(" \\1 ", line)
+            #line_sequence = line_sequence.split(" ")
+            #line_sequence = [ w for w in line_sequence if w != "" ]
+            line_sequence = word_tokenize(line)
             _sequence.append(line_sequence)
 
         output = []

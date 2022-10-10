@@ -7,3 +7,5 @@ __pycache__
 decoders/__pycache__
 model
 datasets
+
+*.ipynb

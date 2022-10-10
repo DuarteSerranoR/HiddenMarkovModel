@@ -20,10 +20,10 @@ def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you
     for line_ix in range(len(data_raw)):
         if "-" in data_raw[line_ix][1]:
             data_raw[line_ix][1] = data_raw[line_ix][1].split("-")[1]
-        if data_raw[line_ix][0] == "Corp.":
-            data_raw[line_ix][0] = "Corp"
-        if data_raw[line_ix][0] == "Mr.":
-            data_raw[line_ix][0] = "Mr"
+    #    if data_raw[line_ix][0] == "Corp.":
+    #        data_raw[line_ix][0] = "Corp"
+    #    if data_raw[line_ix][0] == "Mr.":
+    #        data_raw[line_ix][0] = "Mr"
     data_np = np.array(data_raw,dtype=np.object0)
     data_words,data_state = data_np[:,0],data_np[:,1]
     data_df = pd.DataFrame({ "words": data_words, "states": data_state })
@@ -47,15 +47,15 @@ if __name__ == "__main__":
     
     model = HMM(model_path="./parts_of_speech_tagging/model/hmm.dat")
 
-    model.eval(test_df=test_df)
+    #model.eval(test_df=test_df)
 
     #if isinstance(train_data, pd.DataFrame):
     #    #model.train_numpy(df_in=train_data, smoothing = 0.3)
-    #    train_out, train_accuracy = model.train_numpy(df_in=train_data, test_df=test_df, smoothing = 0.3, test = True)
+    #    model.train_numpy(df_in=train_data, test_df=test_df, smoothing = 0.3, test = True)
     #else:
     #    train_obs, train_obj = train_data
     #    train_out, train_accuracy = model.train_numpy(x_in=train_obs, y_in=train_obj, smoothing = 0.3, test = True)
 
-    #output = model.compute("Can this be possible? I do not think so, this does not seem like a good idea.")
-    #print(output)
+    output = model.compute("Can this be possible? I do not think so, this does not seem like a good idea.")
+    print(output)
  
