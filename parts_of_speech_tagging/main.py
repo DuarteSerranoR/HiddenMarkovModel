@@ -3,6 +3,7 @@ from lib.logger import logger as log
 
 import pandas as pd
 import numpy as np
+import lib.download_nltk
 
 
 def init_data(train_path, obj_path = ""): # NOTE - train_path or obs_path if you want to use two files to train instead of just one
